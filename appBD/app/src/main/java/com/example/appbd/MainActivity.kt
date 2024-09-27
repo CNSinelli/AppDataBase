@@ -25,6 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Room
 import androidx.activity.viewModels
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Divider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.appbd.roomDB.PessoaDataBase
 import com.example.appbd.roomDB.Pessoa
@@ -66,12 +73,23 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App(viewModel: PessoaViewModel, mainActivity: MainActivity) {
-    var nome = ""
-    var tel = ""
-    var pessoa = Pessoa(
+    var nome by remember {
+        mutableStateOf("")
+    }
+    var tel by remember {
+        mutableStateOf("")
+    }
+    val pessoa = Pessoa(
         nome,
         tel
     )
+    var pessoaList by remember {
+        mutableStateOf(listOf<Pessoa>())
+    }
+
+    viewModel.getPessoa().observe(mainActivity){
+        pessoaList = it
+    }
     Column(
         Modifier
             .background(Color.White)
@@ -142,6 +160,32 @@ fun App(viewModel: PessoaViewModel, mainActivity: MainActivity) {
                 tel = ""
             }) {
                 Text(text = "Cadastrar")
+            }
+        }
+        Divider()
+        LazyColumn {
+            items(pessoaList) {pessoa ->
+                Row(
+                    Modifier
+                        .fillMaxWidth(),
+                    Arrangement.Center
+                ) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth(0.5f),
+                        Arrangement.Center
+                    ) {
+                        Text(text = "${pessoa.nome}")
+                    }
+                    Column(
+                        Modifier
+                            .fillMaxWidth(0.5f),
+                        Arrangement.Center
+                    ) {
+                        Text(text = "${pessoa.tel}")
+                    }
+                }
+                Divider()
             }
         }
     }
